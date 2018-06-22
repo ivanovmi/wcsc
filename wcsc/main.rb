@@ -30,19 +30,32 @@ begin
     cm_win.setpos(cm_y_cp+9, cm_x_cp+24)
     cm_win.addstr('No matches are available at this time!')
   else
+    game = gu
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+35)
     cm_win.addstr("#{game[:city]}")
+    cm_win.setpos(cm_y_cp+=2, cm_x_cp+35)
     cm_win.addstr("#{game[:home][:name]} #{game[:home][:score]} - #{game[:away][:score]} #{game[:away][:name]}")
+    cm_win.setpos(cm_y_cp+=2, cm_x_cp+37)
     cm_win.addstr("Time: #{game[:time]}")
     hs = game[:home][:stats]
     as = game[:away][:stats]
+    cm_win.setpos(cm_y_cp+=2, cm_x_cp+32)
     cm_win.addstr("#{hs[:attempts]} Attempts on goal #{as[:attempts]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+35)
     cm_win.addstr("#{hs[:attempts]} On target #{as[:attempts]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+36)
     cm_win.addstr("#{hs[:corners]} Corners #{as[:corners]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+35)
     cm_win.addstr("#{hs[:offsides]} Offsides #{as[:offsides]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+32)
     cm_win.addstr("#{hs[:ball_possesion]} Ball possession #{as[:ball_possesion]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+33)
     cm_win.addstr("#{hs[:pass_accuracy]} Pass accuracy #{as[:pass_accuracy]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+34)
     cm_win.addstr("#{hs[:yellow_cards]} Yellow cards #{as[:yellow_cards]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+36)
     cm_win.addstr("#{hs[:red_cards]} Red cards #{as[:red_cards]}")
+    cm_win.setpos(cm_y_cp+=1, cm_x_cp+38)
     cm_win.addstr("#{hs[:fouls]} Fouls #{as[:fouls]}")
   end
   cm_win.refresh
