@@ -9,6 +9,35 @@ table = Table.new
 schedule = Schedule.new
 
 
+def generate_table_row(title, sym_name, home_stat, away_stat)
+  result_string = ''
+  if home_stat[sym_name].to_s.length == 1
+    result_string << "|  #{home_stat[sym_name]} |"
+  elsif home_stat[sym_name].to_s.length == 2
+    result_string << "| #{home_stat[sym_name]} |"
+  else
+    result_string << "| #{home_stat[sym_name]}|"
+  end
+
+  spaces = 18 - title.to_s.length
+  spaces_wrap = spaces/2
+  if spaces.even?
+    result_string << ' '*spaces_wrap+title+' '*spaces_wrap
+  else
+    result_string << ' '*spaces_wrap+title+' '*(spaces_wrap+1)
+  end
+
+  if away_stat[sym_name].to_s.length == 1
+    result_string << "|  #{away_stat[sym_name]} |"
+  elsif away_stat[sym_name].to_s.length == 2
+    result_string << "| #{away_stat[sym_name]} |"
+  else
+    result_string << "| #{away_stat[sym_name]}|"
+  end
+  result_string
+end
+
+
 def every_n_seconds(n)
   loop do
     before = Time.now
@@ -30,32 +59,42 @@ def render_game_window(window, x_position, y_posiiton, game)
     window.addstr('No matches are available at this time!')
   else
     game = gu
+    hs = game[:home][:stats]
+    as = game[:away][:stats]
     window.setpos(cm_y_cp+=1, cm_x_cp+35)
     window.addstr("#{game[:city]}")
     window.setpos(cm_y_cp+=2, cm_x_cp+35)
     window.addstr("#{game[:home][:name]} #{game[:home][:score]} - #{game[:away][:score]} #{game[:away][:name]}")
     window.setpos(cm_y_cp+=2, cm_x_cp+37)
     window.addstr("Time: #{game[:time]}")
-    hs = game[:home][:stats]
-    as = game[:away][:stats]
     window.setpos(cm_y_cp+=2, cm_x_cp+32)
-    window.addstr("#{hs[:attempts]} Attempts on goal #{as[:attempts]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+35)
-    window.addstr("#{hs[:attempts]} On target #{as[:attempts]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+36)
-    window.addstr("#{hs[:corners]} Corners #{as[:corners]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+35)
-    window.addstr("#{hs[:offsides]} Offsides #{as[:offsides]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+31)
-    window.addstr("#{hs[:ball_possesion]} Ball possession #{as[:ball_possesion]}")
+    window.addstr('+'+'-'*28+'+')
     window.setpos(cm_y_cp+=1, cm_x_cp+32)
-    window.addstr("#{hs[:pass_accuracy]} Pass accuracy #{as[:pass_accuracy]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+33)
-    window.addstr("#{hs[:yellow_cards]} Yellow cards #{as[:yellow_cards]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+35)
+    window.addstr('|         Statistics         |')
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr('+'+'-'*4+'+'+'-'*18+'+'+'-'*4+'+')
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Attempts on goal', :attempts, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('On targets', :on_target, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Corners', :corners, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Offsides', :offsides, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Ball possesion', :ball_possesion, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Pass accuracy', :pass_accuracy, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Yellow cards', :yellow_cards, hs, as))
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Red cards', :red_cards, hs, as))
     window.addstr("#{hs[:red_cards]} Red cards #{as[:red_cards]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+37)
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr(generate_table_row('Fouls', :fouls, hs, as))
     window.addstr("#{hs[:fouls]} Fouls #{as[:fouls]}")
+    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.addstr('+'+'-'*4+'+'+'-'*18+'+'+'-'*4+'+')
   end
   window.refresh
 end
