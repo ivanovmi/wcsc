@@ -3,11 +3,12 @@ require 'terminal-table'
 require_relative 'table'
 require_relative 'schedule'
 require_relative 'game'
+require_relative 'playoff'
 
 game = Game.new
 table = Table.new
 schedule = Schedule.new
-
+playoff = Playoff.new
 
 def generate_table_row(title, sym_name, home_stat, away_stat)
   result_string = ''
@@ -181,6 +182,29 @@ def render_schedule_window(window, x_position, y_position, schedule)
 end
 
 
+def render_playoff_window(window, x_position, y_position, playoff)
+  pu = playoff.update
+  po_y_cp = y_position
+  po_x_cp = x_position
+  window.clear
+  window.box(?|, ?-)
+  window.setpos(po_y_cp, po_x_cp+35)
+  window.addstr('Playoff table')
+  window.setpos(po_y_cp+=1, po_x_cp+5)
+  window.addstr('+'+'-'*13+'+'+'-'*15+'+'+'-'*12+'+'+'-'*17+'+'+'-'*11+'+')
+  window.setpos(po_y_cp+=1, po_x_cp+5)
+  window.addstr('| Round of 16 | Quarterfinals | Semifinals | 3rd place match |   Final   |')
+  window.setpos(po_y_cp+=1, po_x_cp+5)
+  window.addstr('+'+'-'*13+'+'+'-'*15+'+'+'-'*12+'+'+'-'*17+'+'+'-'*11+'+')
+  (0...pu[:r16].length).each do |m|
+    window.setpos(po_y_cp+=1, po_x_cp+5)
+    window.addstr("|#{pu[:r16][m][:home_team].length == 2 ? "   #{pu[:r16][m][:home_team]} - #{pu[:r16][m][:away_team]}   " : "  #{pu[:r16][m][:home_team]} - #{pu[:r16][m][:away_team]}  "}|#{pu[:qf][m].nil? ? ' '*15 : "   #{pu[:qf][m][:home_team]} - #{pu[:qf][m][:away_team]}   "}|#{pu[:sf][m].nil? ? ' '*12 : " #{pu[:sf][m][:home_team]} - #{pu[:sf][m][:away_team]}  "}|#{pu[:tp][m].nil? ? ' '*17 : "    #{pu[:tp][m][:home_team]} - #{pu[:tp][m][:away_team]}    "}|#{pu[:f][m].nil? ? ' '*11 : " #{pu[:f][m][:home_team]} - #{pu[:f][m][:away_team]} "}|")
+    window.setpos(po_y_cp+=1, po_x_cp+5)
+    window.addstr('+'+'-'*13+'+'+'-'*15+'+'+'-'*12+'+'+'-'*17+'+'+'-'*11+'+')
+  end
+  window.refresh
+end
+
 Curses.init_screen
 Curses.noecho
 begin
@@ -188,8 +212,8 @@ begin
   # Define default coordinates
   top, left = (Curses.lines)/100, (Curses.cols) / 100
   height, width = Curses.lines, Curses.cols-2
-  y_cp = cm_y_cp = tb_y_cp = sc_y_cp = 1
-  x_cp = cm_x_cp = tb_x_cp = sc_x_cp = 0
+  y_cp = cm_y_cp = tb_y_cp = sc_y_cp = po_y_cp = 1
+  x_cp = cm_x_cp = tb_x_cp = sc_x_cp = po_x_cp = 0
   thread_group = []
   # Create background window
   bkg_win = Curses::Window.new(height, width, top, left)
@@ -203,7 +227,6 @@ begin
       render_game_window(cm_win, cm_y_cp, cm_x_cp, game)
     end
   end
-
   # Create window with table of results
   table_win = bkg_win.subwin(height-24, width-90, top+1, left+88)
   table_win.setpos(tb_y_cp, tb_x_cp)
@@ -213,8 +236,11 @@ begin
     end
   end
   playoff_win = bkg_win.subwin(height-25, width-90, top+24, left+88)
-  playoff_win.box(?|, ?-)
-  playoff_win.refresh
+  thread_group << Thread.new do
+    every_n_seconds(3600) do
+      render_playoff_window(playoff_win, po_x_cp, po_y_cp, playoff)
+    end
+  end
   # Create window with schedule
   schedule_win = bkg_win.subwin(height-25, width-90, top+24, left+2)
   schedule_win.setpos(sc_y_cp, sc_x_cp)
