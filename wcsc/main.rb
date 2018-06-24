@@ -16,8 +16,10 @@ def generate_table_row(title, sym_name, home_stat, away_stat)
     result_string << "|  #{home_stat[sym_name]} |"
   elsif home_stat[sym_name].to_s.length == 2
     result_string << "| #{home_stat[sym_name]} |"
-  else
+  elsif home_stat[sym_name].to_s.length == 3
     result_string << "| #{home_stat[sym_name]}|"
+  else
+    result_string << '|'+' '*4+'|'
   end
 
   spaces = 18 - title.to_s.length
@@ -32,8 +34,10 @@ def generate_table_row(title, sym_name, home_stat, away_stat)
     result_string << "|  #{away_stat[sym_name]} |"
   elsif away_stat[sym_name].to_s.length == 2
     result_string << "| #{away_stat[sym_name]} |"
-  else
+  elsif away_stat[sym_name].to_s.length == 3
     result_string << "| #{away_stat[sym_name]}|"
+  else
+    result_string << '|'+' '*4+'|'
   end
   result_string
 end
@@ -55,46 +59,44 @@ def render_game_window(window, x_position, y_posiiton, game)
   cm_x_cp = x_position
   window.clear
   window.box(?|, ?-)
+  window.setpos(cm_y_cp+=1, cm_x_cp+36)
+  window.addstr('Current match')
   if gu.nil?
-    window.setpos(cm_y_cp+9, cm_x_cp+24)
+    window.setpos(cm_y_cp+10, cm_x_cp+24)
     window.addstr('No matches are available at this time!')
   else
     game = gu
     hs = game[:home][:stats]
     as = game[:away][:stats]
-    window.setpos(cm_y_cp+=1, cm_x_cp+35)
-    window.addstr("#{game[:city]}")
-    window.setpos(cm_y_cp+=2, cm_x_cp+35)
+    window.setpos(cm_y_cp+=2, cm_x_cp+36)
     window.addstr("#{game[:home][:name]} #{game[:home][:score]} - #{game[:away][:score]} #{game[:away][:name]}")
-    window.setpos(cm_y_cp+=2, cm_x_cp+37)
+    window.setpos(cm_y_cp+=2, cm_x_cp+38)
     window.addstr("Time: #{game[:time]}")
-    window.setpos(cm_y_cp+=2, cm_x_cp+32)
+    window.setpos(cm_y_cp+=2, cm_x_cp+27)
     window.addstr('+'+'-'*28+'+')
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr('|         Statistics         |')
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr('+'+'-'*4+'+'+'-'*18+'+'+'-'*4+'+')
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Attempts on goal', :attempts, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('On targets', :on_target, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Corners', :corners, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Offsides', :offsides, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Ball possesion', :ball_possesion, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Pass accuracy', :pass_accuracy, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Yellow cards', :yellow_cards, hs, as))
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Red cards', :red_cards, hs, as))
-    window.addstr("#{hs[:red_cards]} Red cards #{as[:red_cards]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr(generate_table_row('Fouls', :fouls, hs, as))
-    window.addstr("#{hs[:fouls]} Fouls #{as[:fouls]}")
-    window.setpos(cm_y_cp+=1, cm_x_cp+32)
+    window.setpos(cm_y_cp+=1, cm_x_cp+27)
     window.addstr('+'+'-'*4+'+'+'-'*18+'+'+'-'*4+'+')
   end
   window.refresh
@@ -107,26 +109,28 @@ def render_table_window(window, x_position, y_position, table)
   window.clear
   window.box(?|, ?-)
   tu = table.update
+  window.setpos(tb_y_cp, tb_x_cp+38)
+  window.addstr('Group table')
   (0...tu.length).step(4).each do |group_index|
     lg = tu[group_index]
     fmg = tu[group_index+1]
     smg = tu[group_index+2]
     rg = tu[group_index+3]
-    window.setpos(tb_y_cp+=1, tb_x_cp+3)
-    window.addstr("\t        Group #{lg[:name]}          Group #{fmg[:name]}          Group #{smg[:name]}          Group #{rg[:name]}")
-    window.setpos(tb_y_cp+=1, tb_x_cp+3)
-    window.addstr("\t+----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+")
-    window.setpos(tb_y_cp+=1, tb_x_cp+3)
-    window.addstr("\t|    |W|D|L|P|GD|     |W|D|L|P|GD|     |W|D|L|P|GD|\t|W|D|L|P|GD|")
-    window.setpos(tb_y_cp+=1, tb_x_cp+3)
-    window.addstr("\t+----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+")
+    window.setpos(tb_y_cp+=1, tb_x_cp+15)
+    window.addstr("Group #{lg[:name]}          Group #{fmg[:name]}          Group #{smg[:name]}          Group #{rg[:name]}")
+    window.setpos(tb_y_cp+=1, tb_x_cp+8)
+    window.addstr("+----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+")
+    window.setpos(tb_y_cp+=1, tb_x_cp+8)
+    window.addstr("|    |W|D|L|P|GD|     |W|D|L|P|GD|     |W|D|L|P|GD|\t|W|D|L|P|GD|")
+    window.setpos(tb_y_cp+=1, tb_x_cp+8)
+    window.addstr("+----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+")
     (0...lg[:teams].length).each do |team_index|
       lt = lg[:teams][team_index]
       fmt = fmg[:teams][team_index]
       smt = smg[:teams][team_index]
       rt = rg[:teams][team_index]
-      window.setpos(tb_y_cp+=1, tb_x_cp+3)
-      window.addstr("\t|#{lt[:name]} |#{lt[:win]}|#{lt[:draw]}|#{lt[:lose]}|#{lt[:point]}|#{lt[:diff].to_s.start_with?('-') ? "#{lt[:diff]}" : " #{lt[:diff]}"}| #{fmt[:name]} |#{fmt[:win]}|#{fmt[:draw]}|#{fmt[:lose]}|#{fmt[:point]}|#{fmt[:diff].to_s.start_with?('-') ? "#{fmt[:diff]}" : " #{fmt[:diff]}"}| #{smt[:name]} |#{smt[:win]}|#{smt[:draw]}|#{smt[:lose]}|#{smt[:point]}|#{smt[:diff].to_s.start_with?('-') ? "#{smt[:diff]}" : " #{smt[:diff]}"}| #{rt[:name]} |#{rt[:win]}|#{rt[:draw]}|#{rt[:lose]}|#{rt[:point]}|#{rt[:diff].to_s.start_with?('-') ? "#{rt[:diff]}" : " #{rt[:diff]}"}|")
+      window.setpos(tb_y_cp+=1, tb_x_cp+8)
+      window.addstr("|#{lt[:name]} |#{lt[:win]}|#{lt[:draw]}|#{lt[:lose]}|#{lt[:point]}|#{lt[:diff].to_s.start_with?('-') ? "#{lt[:diff]}" : " #{lt[:diff]}"}| #{fmt[:name]} |#{fmt[:win]}|#{fmt[:draw]}|#{fmt[:lose]}|#{fmt[:point]}|#{fmt[:diff].to_s.start_with?('-') ? "#{fmt[:diff]}" : " #{fmt[:diff]}"}| #{smt[:name]} |#{smt[:win]}|#{smt[:draw]}|#{smt[:lose]}|#{smt[:point]}|#{smt[:diff].to_s.start_with?('-') ? "#{smt[:diff]}" : " #{smt[:diff]}"}| #{rt[:name]} |#{rt[:win]}|#{rt[:draw]}|#{rt[:lose]}|#{rt[:point]}|#{rt[:diff].to_s.start_with?('-') ? "#{rt[:diff]}" : " #{rt[:diff]}"}|")
     end
     window.setpos(tb_y_cp+=1, tb_x_cp+3)
     window.addstr("\t+----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+-----+-+-+-+-+--+")
@@ -154,29 +158,39 @@ def render_schedule_window(window, x_position, y_position, schedule)
       not_started << match
     end
   end
-  unless not_started.empty?
-    window.setpos(sc_y_cp+=1, sc_x_cp+3)
-    window.addstr('Not started')
-    not_started.each do |match|
-      window.setpos(sc_y_cp+=1, sc_x_cp+5)
-      window.addstr("\t#{match[:home_team][:name]} #{match[:home_team][:goals]} - #{match[:away_team][:goals]} #{match[:away_team][:name]} (#{match[:city]})")
+  window.setpos(sc_y_cp, sc_x_cp+36)
+  window.addstr('Today matches')
+  window.setpos(sc_y_cp+=3, sc_x_cp+18)
+  window.addstr('+'+'-'*15+'+'+'-'*15+'+'+'-'*15+'+')
+  window.setpos(sc_y_cp+=1, sc_x_cp+18)
+  window.addstr('|  Not started  |  In progress  |   Completed   |')
+  window.setpos(sc_y_cp+=1, sc_x_cp+18)
+  window.addstr('+'+'-'*15+'+'+'-'*15+'+'+'-'*15+'+')
+  s = [not_started.length, in_progress.length, completed.length].sort.last
+  (0...s).each do |m|
+    ns_match = not_started[m]
+    ip_match = in_progress[m]
+    cmpl_match = completed[m]
+    rs = ''
+    if ns_match.nil?
+      rs << '|'+' '*15
+    else
+      rs << "| #{ns_match[:home_team][:name]} #{ns_match[:home_team][:goals]} - #{ns_match[:away_team][:goals]} #{ns_match[:away_team][:name]} "
     end
-  end
-  unless in_progress.empty?
-    window.setpos(sc_y_cp+=1, sc_x_cp+3)
-    window.addstr('In progress')
-    in_progress.each do |match|
-      window.setpos(sc_y_cp+=1, sc_x_cp+5)
-      window.addstr("\t#{match[:home_team][:name]} #{match[:home_team][:goals]} - #{match[:away_team][:goals]} #{match[:away_team][:name]} (#{match[:city]})")
+    if ip_match.nil?
+      rs << '|'+' '*15
+    else
+      rs << "| #{ip_match[:home_team][:name]} #{ip_match[:home_team][:goals]} - #{ip_match[:away_team][:goals]} #{ip_match[:away_team][:name]} "
     end
-  end
-  unless completed.empty?
-    window.setpos(sc_y_cp+=2, sc_x_cp+3)
-    window.addstr('Completed')
-    completed.each do |match|
-      window.setpos(sc_y_cp+=1, sc_x_cp+5)
-      window.addstr("\t#{match[:home_team][:name]} #{match[:home_team][:goals]} - #{match[:away_team][:goals]} #{match[:away_team][:name]} (#{match[:city]})")
+    if cmpl_match.nil?
+      rs << '|'+' '*15+'|'
+    else
+      rs << "| #{cmpl_match[:home_team][:name]} #{cmpl_match[:home_team][:goals]} - #{cmpl_match[:away_team][:goals]} #{cmpl_match[:away_team][:name]} |"
     end
+    window.setpos(sc_y_cp+=1, sc_x_cp+18)
+    window.addstr(rs)
+    window.setpos(sc_y_cp+=1, sc_x_cp+18)
+    window.addstr('+'+'-'*15+'+'+'-'*15+'+'+'-'*15+'+')
   end
   window.refresh
 end
