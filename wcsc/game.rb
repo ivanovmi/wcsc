@@ -15,7 +15,7 @@ class Game
     response = Net::HTTP.get(@url)
     parsed_json = JSON.parse(response)
     game = {}
-    if parsed_json.empty?
+    if parsed_json.empty? or parsed_json.nil?
       return nil
     end
     parsed_json.each do |g|
